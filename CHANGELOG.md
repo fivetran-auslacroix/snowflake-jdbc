@@ -2,7 +2,12 @@
 
 # Changelog
 - v4.4.2-SNAPSHOT
-  - 
+  - Added native IPADDRESS support: `ResultSetMetaData` reports `Types.OTHER` with type name `IPADDRESS` and class name `java.net.InetAddress`, `getObject` returns a `java.net.Inet4Address` or `java.net.Inet6Address` for Arrow and JSON results, `getObject(column, InetAddress.class)` returns the same value, `getString` returns the canonical text, and `setObject` accepts `InetAddress` values (SNOW-4345125, snowflakedb/snowflake-jdbc#52).
+  
+  - Bumped the following dependencies:
+    - guava to 33.8.0-jre from 33.7.2-jre.
+    - netty to 4.1.140.Final from 4.1.139.Final.
+    - json-smart to 2.6.1 from 2.5.2.
 
 - v4.4.1
   - Fixed `PreparedStatement.setTimestamp` and `setObject` binding a `java.sql.Timestamp` that is before 1970-01-01 and has a fractional second of at least 1 millisecond exactly one second late. `setTimestamp(int, Timestamp, Calendar)` was affected the same way, including values that fall before 1970 only after the calendar offset is applied (SNOW-4352287).
@@ -10,7 +15,7 @@
   - Fixed token cache key normalization to use lowercase for consistency with case-insensitive Snowflake identifiers (quoted identifiers are preserved verbatim); the token type in the key prefix now uses PascalCase (`MfaToken`, `OauthAccessToken`) instead of `SCREAMING_SNAKE_CASE` (SNOW-3784426).
   - Changed the token cache to a new key namespace, `SnowflakeTokenCache.v2.<PascalCaseTokenType>.<hash>` (`IdToken`, `MfaToken`, `OauthAccessToken`, `OauthRefreshToken`, `DpopBundledAccessToken`). Existing macOS Keychain, Windows Credential Manager, and Linux credential-file entries are not read and are not migrated; the next connection re-authenticates and writes a new entry. There is no v1 dual-read (SNOW-3784426).
   - Fixed the OAuth authorization-code redirect page throwing `NoClassDefFoundError` for `HtmlEscapers` by including Guava's `html` and `escape` packages in the shaded driver and FIPS jars (SNOW-4333838, snowflakedb/snowflake-jdbc#48).
-  - Added session-parameter lookup and best-effort telemetry submission on `SnowflakeConnection` (snowflakedb/snowflake-jdbc#19).
+  - Added session-parameter lookup and best-effort telemetry submission on `SnowflakeConnection` (snowflakedb/snowflake-jdbc#19, snowflakedb/snowflake-jdbc#58).
   - Fixed pooled HTTP connections being checked for closure after 30 milliseconds by default, because the idle-connection timeout in seconds was passed to an API that expects milliseconds. Connections are now checked after 2 seconds, matching JDBC 3.28.0. `net.snowflake.jdbc.idle_connection_timeout` still controls only how long an idle connection stays in the pool (SNOW-4242824, snowflakedb/snowflake-jdbc#39).
   - Added an agent skill that walks an application from JDBC 3.x to 4.x, including the public API move and the 4.0 behavior that later releases repaired (`.claude/skills/jdbc-3-to-4-migration/`). Not part of the release artifacts.
   - Bumped the following dependencies:
